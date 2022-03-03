@@ -2,39 +2,49 @@ class Api::V1::ArticlesController < ApplicationController
   before_action :find_article, only: [:show, :update, :destroy]
 
   def index
-    @api_v1_articles = Api::V1::Article.all
-    render json: @api_v1_articles
+    @articles = Article.all
+    render json: @articles
   end
 
   def show
-    render json: @api_v1_article
+    render json: @article
   end
 
   def create
-    @api_v1_article = Api::V1::Article.new(article_params)
-    if @api_v1_article.save!
-      render json: @api_v1_article, status: :created
+    @article = Article.new(article_params)
+    if @article.save!
+      render json: @article, status: :created
     else
-      render json: @api_v1_article.errors, status: :unprocessable_entity
+      render json: @article.errors, status: :unprocessable_entity
     end
   end
 
   def update
-    if @api_v1_article.update(article_params)
-      render json: @api_v1_article
+    if @article.update(article_params)
+      render json: @article
     else
-      render json: @api_v1_article.errors, status: :unprocessable_entity
+      render json: @article.errors, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @api_v1_article.destroy
+    @article.destroy
+  end
+
+  def search
+    @article = Article.find_by(title: params[:title])
+    if @article
+      @articles = Article.where("title=?", @article.title)
+      render json: @articles
+    else
+      render json: { message: "Article not exist" }
+    end
   end
 
   private
 
   def find_article
-    @api_v1_article = Api::V1::Article.find(params[:id])
+    @article = Article.find(params[:id])
   end
 
   def article_params
